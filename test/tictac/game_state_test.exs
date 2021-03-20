@@ -576,6 +576,7 @@ defmodule Tictac.GameStateTest do
       |> assert_player_turn(p1)
       |> GameState.move(p1, :sq11)
       |> assert_player_turn(p2)
+      |> assert_square_letter(:sq11, "O")
       # O| |
       # -+-+-
       #  | |
@@ -583,6 +584,7 @@ defmodule Tictac.GameStateTest do
       #  | |
       |> GameState.move(p2, :sq22)
       |> assert_player_turn(p1)
+      |> assert_square_letter(:sq22, "X")
       # O| |
       # -+-+-
       #  |X|
