@@ -490,6 +490,36 @@ defmodule Tictac.GameStateTest do
     end
   end
 
+  describe "find_square/2" do
+    test "return ok tuple with square when found", %{players: [p1, _p2]} do
+      state = GameState.new(p1)
+      assert {:ok, %Square{name: :sq11}} = GameState.find_square(state, :sq11)
+      assert {:ok, %Square{name: :sq22}} = GameState.find_square(state, :sq22)
+      assert {:ok, %Square{name: :sq33}} = GameState.find_square(state, :sq33)
+    end
+
+    test "return error tuple when not found", %{players: [p1, _p2]} do
+      state = GameState.new(p1)
+      assert {:error, "Square not found"} == GameState.find_square(state, :invalid)
+      assert {:error, "Square not found"} == GameState.find_square(state, :sq00)
+    end
+  end
+
+  describe "place_letter/3" do
+    test "claim a square with a letter" do
+      updated_state =
+        %GameState{}
+        |> GameState.place_letter("X", :sq11)
+        |> GameState.place_letter("X", :sq21)
+        |> GameState.place_letter("X", :sq31)
+
+      assert {:ok, %Square{letter: "X"}} = GameState.find_square(updated_state, :sq11)
+      assert {:ok, %Square{letter: "X"}} = GameState.find_square(updated_state, :sq21)
+      assert {:ok, %Square{letter: "X"}} = GameState.find_square(updated_state, :sq31)
+      assert {:ok, %Square{letter: nil}} = GameState.find_square(updated_state, :sq23)
+    end
+  end
+
   describe "move/3" do
     setup %{players: [p1, p2]} do
       {:ok, game} =
@@ -501,12 +531,25 @@ defmodule Tictac.GameStateTest do
       %{game: game}
     end
 
-    test "returns new state with other player's turn" do
-      assert false
+    test "return error when square already taken", %{game: game, players: [p1, p2]} do
+      {:ok, updated} = GameState.move(game, p1, :sq11)
+      assert {:error, "Square already taken"} = GameState.move(updated, p2, :sq11)
     end
 
-    test "updates board with the move" do
-      assert false
+    test "return error when square not found", %{game: game, players: [p1, _p2]} do
+      assert {:error, "Square not found"} = GameState.move(game, p1, :sq00)
+    end
+
+    test "returns new state with other player's turn", %{game: game, players: [p1, p2]} do
+      game
+      |> GameState.move(p1, :sq11)
+      |> assert_player_turn(p2)
+    end
+
+    test "updates board with the move", %{game: game, players: [p1, _p2]} do
+      game
+      |> GameState.move(p1, :sq11)
+      |> assert_square_letter(:sq11, p1.letter)
     end
 
     test "returns error when wrong player goes", %{game: game, players: [p1, p2]} do
@@ -516,10 +559,8 @@ defmodule Tictac.GameStateTest do
 
     test "returns error when occupied place given", %{game: game, players: [p1, p2]} do
       {:ok, move_1} = GameState.move(game, p1, :sq11)
-      assert {:error, "Boo"} == GameState.move(game, p2, :sq11)
+      assert {:error, "Square already taken"} == GameState.move(move_1, p2, :sq11)
     end
-
-    test "updates status when game over"
   end
 
   describe "full game run through" do
@@ -677,6 +718,11 @@ defmodule Tictac.GameStateTest do
 
   defp assert_result({:ok, %GameState{} = state}, result_value) do
     assert result_value == GameState.result(state)
+    {:ok, state}
+  end
+
+  defp assert_square_letter({:ok, %GameState{} = state}, square, letter) do
+    assert {:ok, %Square{letter: ^letter}} = GameState.find_square(state, square)
     {:ok, state}
   end
 end

@@ -231,6 +231,19 @@ defmodule Tictac.GameState do
   end
 
   @doc """
+  Find a square on the board by it's name.
+  """
+  def find_square(%GameState{} = state, square) do
+    case Enum.find(state.board, &(&1.name == square)) do
+      nil ->
+        {:error, "Square not found"}
+
+      %Square{} = square ->
+        {:ok, square}
+    end
+  end
+
+  @doc """
   Performs a player move. Returns a new GameState after the move. Will be the
   next player's turn. Returns an error tuple if the move is not allowed or not
   the player's turn.
@@ -249,7 +262,7 @@ defmodule Tictac.GameState do
     state
     |> verify_player_turn(player)
     |> verify_square(square)
-    |> place_letter(player, square)
+    |> player_claim_square(player, square)
     |> check_for_done()
     |> next_player_turn()
   end
@@ -262,30 +275,37 @@ defmodule Tictac.GameState do
     end
   end
 
-  # defp verify_square({:ok, %GameState{board: board} = state}, square) do
-  #   # Verify
+  defp verify_square({:ok, %GameState{} = state}, square) do
+    # Find the square and verify the player can go there
+    case GameState.find_square(state, square) do
+      {:ok, %Square{letter: nil}} -> {:ok, state}
+      {:ok, %Square{}} -> {:error, "Square already taken"}
+      {:error, _reason} = error -> error
+    end
+  end
 
-  # end
+  defp verify_square({:error, _reason} = error, _square), do: error
 
-  defp place_letter({:ok, %GameState{board: board} = state}, %Player{} = player, square) do
-    # TODO: Create a local function that does a pattern match. Return an error if the matching square name already has a letter.
-    # TODO: Return an updated square if valid
-    # TODO: Return existing square if not a name match
-    # TODO: do as a public function with doctest? Do @doc false and write the tests for that function
+  defp player_claim_square({:ok, %GameState{} = state}, %Player{} = player, square) do
+    {:ok, place_letter(state, player.letter, square)}
+  end
 
+  defp player_claim_square({:error, _reason} = error, _player, _square), do: error
+
+  @doc false
+  @spec place_letter(t, Square.t(), letter :: nil | String.t()) :: t
+  def place_letter(%GameState{} = state, letter, square) do
     updated_board =
-      Enum.map(board, fn sq ->
+      Enum.map(state.board, fn sq ->
         if sq.name == square do
-          %Square{sq | letter: player.letter}
+          %Square{sq | letter: letter}
         else
           sq
         end
       end)
 
-    {:ok, %GameState{state | board: updated_board}}
+    %GameState{state | board: updated_board}
   end
-
-  defp place_letter({:error, _reason} = error, _player, _square), do: error
 
   defp check_for_done({:ok, %GameState{} = state}) do
     case result(state) do
