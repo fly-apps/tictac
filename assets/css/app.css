@@ -1,0 +1,20 @@
+/**
+  * This injects Tailwind's base styles and any base styles registered by
+  * plugins.
+  *
+  * Instructions on how this needs to be formatted:
+  *
+  * https://tailwindcss.com/docs/using-with-preprocessors
+  *
+  * Note that `postcss-import` is required for this to work with @apply
+  * directives.
+  */
+
+  @import "tailwindcss/base";
+  @import "tailwindcss/components";
+  @import "tailwindcss/utilities";
+  @import "tailwindcss/screens";
+  
+  @import "./phoenix-liveview.css";
+  @import "./alpine-support.css";
+  

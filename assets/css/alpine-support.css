@@ -1,0 +1,4 @@
+/* Alpine.js - when first loading a page, hide anything with x-cloak so it won't show then disappear */
+[x-cloak] {
+  display: none;
+}
