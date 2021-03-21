@@ -39,6 +39,12 @@ Next step was to create `valid_moves/1`. This helps determine if the game ended 
 
 I was now ready to add a function to determine if the game was over or not. `game_over?/1`
 
+Setup for Tailwind and AlpineJS - PETAL
+
+```
+cd assets
+npm install
+```
 
 
 
@@ -61,3 +67,4 @@ TODO: What this demonstrates
   - Using :pg2 to connect to the desired game server in a cluster
   - Clustered Phoenix application instances
   - How easy it is to deploy a clustered app on Fly.io
+
