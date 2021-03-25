@@ -50,3 +50,7 @@
   text-decoration: none;
   cursor: pointer;
 }
+
+p.alert:empty {
+  display: none;
+}
