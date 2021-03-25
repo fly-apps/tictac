@@ -17,15 +17,10 @@ defmodule Tictac.Application do
       # setup for clustering
       {Cluster.Supervisor, [libcluster(env), [name: Tictac.ClusterSupervisor]]},
       # Start the registry for tracking running games
-      # {Horde.Registry, name: Tictac.GameRegistry, keys: :unique, members: registry_members},
-      # {Horde.DynamicSupervisor,
-      #  name: Tictac.DistributedSupervisor, strategy: :one_for_one, members: supervisor_members},
-      {Horde.Registry, [name: Tictac.GameRegistry, keys: :unique]},
+      {Horde.Registry, [name: Tictac.GameRegistry, keys: :unique, members: :auto]},
       {Horde.DynamicSupervisor, [name: Tictac.DistributedSupervisor, strategy: :one_for_one, members: :auto]},
       # # Start the Endpoint (http/https)
       TictacWeb.Endpoint
-      # Start a worker by calling: Tictac.Worker.start_link(arg)
-      # {Tictac.Worker, arg}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
