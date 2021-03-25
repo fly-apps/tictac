@@ -9,6 +9,7 @@ defmodule Tictac.Fixtures do
 
   def fixture(:player, attrs) do
     %Player{
+      id: Ecto.UUID.generate(),
       name: Map.get(attrs, :name, Enum.random(["Player", "Tom", "Sally", "Herman", "Jessica"])),
       letter: Map.get(attrs, :letter, Enum.random(["X", "O"]))
     }

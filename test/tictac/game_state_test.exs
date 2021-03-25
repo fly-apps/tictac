@@ -8,6 +8,8 @@ defmodule Tictac.GameStateTest do
   alias Tictac.Player
   alias Tictac.Square
 
+  @game_code "ABCD"
+
   setup do
     player = fixture(:player, %{letter: "O"})
     opponent = fixture(:player, %{letter: "X"})
@@ -36,7 +38,7 @@ defmodule Tictac.GameStateTest do
         ]
       }
 
-      assert {:sq11, :sq12, :sq13} == GameState.check_for_player_win(state, p)
+      assert [:sq11, :sq12, :sq13] == GameState.check_for_player_win(state, p)
 
       #  |X|
       # -+-+-
@@ -58,7 +60,7 @@ defmodule Tictac.GameStateTest do
         ]
       }
 
-      assert {:sq21, :sq22, :sq23} == GameState.check_for_player_win(state, p)
+      assert [:sq21, :sq22, :sq23] == GameState.check_for_player_win(state, p)
 
       #  |X|
       # -+-+-
@@ -80,7 +82,7 @@ defmodule Tictac.GameStateTest do
         ]
       }
 
-      assert {:sq31, :sq32, :sq33} == GameState.check_for_player_win(state, p)
+      assert [:sq31, :sq32, :sq33] == GameState.check_for_player_win(state, p)
     end
 
     test "correctly identify vertical player wins", %{players: players, player: p} do
@@ -104,7 +106,7 @@ defmodule Tictac.GameStateTest do
         ]
       }
 
-      assert {:sq11, :sq21, :sq31} == GameState.check_for_player_win(state, p)
+      assert [:sq11, :sq21, :sq31] == GameState.check_for_player_win(state, p)
 
       #  |O|
       # -+-+-
@@ -126,7 +128,7 @@ defmodule Tictac.GameStateTest do
         ]
       }
 
-      assert {:sq12, :sq22, :sq32} == GameState.check_for_player_win(state, p)
+      assert [:sq12, :sq22, :sq32] == GameState.check_for_player_win(state, p)
 
       # X| |O
       # -+-+-
@@ -148,7 +150,7 @@ defmodule Tictac.GameStateTest do
         ]
       }
 
-      assert {:sq13, :sq23, :sq33} == GameState.check_for_player_win(state, p)
+      assert [:sq13, :sq23, :sq33] == GameState.check_for_player_win(state, p)
     end
 
     test "correctly identify diagonal player wins", %{players: players, player: p} do
@@ -172,7 +174,7 @@ defmodule Tictac.GameStateTest do
         ]
       }
 
-      assert {:sq11, :sq22, :sq33} == GameState.check_for_player_win(state, p)
+      assert [:sq11, :sq22, :sq33] == GameState.check_for_player_win(state, p)
 
       # X| |O
       # -+-+-
@@ -194,7 +196,7 @@ defmodule Tictac.GameStateTest do
         ]
       }
 
-      assert {:sq13, :sq22, :sq31} == GameState.check_for_player_win(state, p)
+      assert [:sq13, :sq22, :sq31] == GameState.check_for_player_win(state, p)
     end
 
     test "return :not_found when player has not won", %{players: players, player: p} do
@@ -400,15 +402,28 @@ defmodule Tictac.GameStateTest do
     end
   end
 
+  describe "new/2" do
+    test "sets the game_code and the player" do
+      uuid = Ecto.UUID.generate()
+      state = GameState.new("1234", %Player{id: uuid, name: "Tom", letter: nil})
+      assert state.code == "1234"
+      assert [p1] = state.players
+      assert p1.id == uuid
+      assert p1.name == "Tom"
+      # Player is auto-assigned letter
+      assert p1.letter == "O"
+    end
+  end
+
   describe "join_game/2" do
     test "second player can join", %{players: [p1, p2]} do
-      state = GameState.new(p1)
+      state = GameState.new(@game_code, p1)
       assert {:ok, new_state} = GameState.join_game(state, p2)
       assert length(new_state.players) == 2
     end
 
     test "deny more than 2 players", %{players: [p1, p2]} do
-      state = GameState.new(p1)
+      state = GameState.new(@game_code, p1)
       assert {:ok, new_state} = GameState.join_game(state, p2)
 
       assert {:error, "Only 2 players allowed"} =
@@ -420,7 +435,7 @@ defmodule Tictac.GameStateTest do
       assert p2.letter == "X"
       # Try to add second player also as letter "O"
       p2 = %Player{p2 | letter: "O"}
-      state = GameState.new(p1)
+      state = GameState.new(@game_code, p1)
       assert {:ok, new_state} = GameState.join_game(state, p2)
       [_p1, added_p2] = new_state.players
       assert added_p2.letter == "X"
@@ -447,8 +462,8 @@ defmodule Tictac.GameStateTest do
       assert p2.letter == "X"
       # Start with player2 who is currently "X"
       {:ok, state} =
-        p2
-        |> GameState.new()
+        @game_code
+        |> GameState.new(p2)
         |> GameState.join_game(p1)
 
       {:ok, game} = GameState.start(state)
@@ -478,6 +493,48 @@ defmodule Tictac.GameStateTest do
     end
   end
 
+  describe "get_player/2" do
+    test "returns nil when not found", %{players: [p1, p2]} do
+      state = %GameState{players: [p1, p2]}
+      assert nil == GameState.get_player(state, Ecto.UUID.generate())
+    end
+
+    test "returns the player when string ID is given", %{players: [p1, p2]} do
+      state = %GameState{players: [p1, p2]}
+      assert p1 == GameState.get_player(state, to_string(p1.id))
+    end
+
+    test "returns player when player's UUID is given", %{players: [p1, p2]} do
+      state = %GameState{players: [p1, p2]}
+      assert p2 == GameState.get_player(state, p2.id)
+    end
+  end
+
+  describe "find_player/2" do
+    test "returns error when not found", %{players: [p1, p2]} do
+      state = %GameState{players: [p1, p2]}
+      assert {:error, "Player not found"} == GameState.find_player(state, Ecto.UUID.generate())
+    end
+
+    test "returns the player when string ID is given", %{players: [p1, p2]} do
+      state = %GameState{players: [p1, p2]}
+      assert {:ok, p1} == GameState.find_player(state, to_string(p1.id))
+    end
+  end
+
+  describe "opponent/2" do
+    test "returns nil when no opponent", %{players: [p1, _p2]} do
+      state = %GameState{players: [p1]}
+      assert nil == GameState.opponent(state, p1)
+    end
+
+    test "returns the other player", %{players: [p1, p2]} do
+      state = %GameState{players: [p1, p2]}
+      assert p2 == GameState.opponent(state, p1)
+      assert p1 == GameState.opponent(state, p2)
+    end
+  end
+
   describe "player_turn?/2" do
     test "correctly identifies when it's the player's turn", %{players: [p1, p2]} do
       state = %GameState{players: [p1, p2], player_turn: "O"}
@@ -492,14 +549,14 @@ defmodule Tictac.GameStateTest do
 
   describe "find_square/2" do
     test "return ok tuple with square when found", %{players: [p1, _p2]} do
-      state = GameState.new(p1)
+      state = GameState.new(@game_code, p1)
       assert {:ok, %Square{name: :sq11}} = GameState.find_square(state, :sq11)
       assert {:ok, %Square{name: :sq22}} = GameState.find_square(state, :sq22)
       assert {:ok, %Square{name: :sq33}} = GameState.find_square(state, :sq33)
     end
 
     test "return error tuple when not found", %{players: [p1, _p2]} do
-      state = GameState.new(p1)
+      state = GameState.new(@game_code, p1)
       assert {:error, "Square not found"} == GameState.find_square(state, :invalid)
       assert {:error, "Square not found"} == GameState.find_square(state, :sq00)
     end
@@ -523,12 +580,22 @@ defmodule Tictac.GameStateTest do
   describe "move/3" do
     setup %{players: [p1, p2]} do
       {:ok, game} =
-        p1
-        |> GameState.new()
+        @game_code
+        |> GameState.new(p1)
         |> GameState.join_game(p2)
 
       {:ok, game} = GameState.start(game)
       %{game: game}
+    end
+
+    test "return error when game status is not_started", %{game: game, players: [p1, _p2]} do
+      game = %GameState{game | status: :not_started}
+      assert {:error, "Game hasn't started yet!"} = GameState.move(game, p1, :sq11)
+    end
+
+    test "return error when game is done", %{game: game, players: [p1, _p2]} do
+      game = %GameState{game | status: :done}
+      assert {:error, "Game is over!"} = GameState.move(game, p1, :sq11)
     end
 
     test "return error when square already taken", %{game: game, players: [p1, p2]} do
@@ -563,11 +630,39 @@ defmodule Tictac.GameStateTest do
     end
   end
 
+  describe "restart/1" do
+    setup %{players: [p1, p2]} do
+      {:ok, game} =
+        @game_code
+        |> GameState.new(p1)
+        |> GameState.join_game(p2)
+
+      {:ok, game} = GameState.start(game)
+      %{game: game}
+    end
+
+    test "status is :playing", %{game: game} do
+      game_done = %GameState{game | status: :done}
+      updated = GameState.restart(game_done)
+      assert updated.status == :playing
+    end
+
+    test "game is restarted", %{game: game, players: [p1, p2]} do
+      {:ok, played} = GameState.move(game, p1, :sq11)
+      assert played.player_turn == p2.letter
+      updated = GameState.restart(played)
+      # player turn is player 1
+      assert updated.player_turn == p1.letter
+      # the board is reset
+      assert updated.board == %GameState{}.board
+    end
+  end
+
   describe "full game run through" do
     test "a full winning game works", %{players: [p1, p2]} do
       {:ok, game} =
-        p1
-        |> GameState.new()
+        @game_code
+        |> GameState.new(p1)
         |> GameState.join_game(p2)
 
       {:ok, game} = GameState.start(game)
@@ -630,8 +725,8 @@ defmodule Tictac.GameStateTest do
 
     test "a full draw game works", %{players: [p1, p2]} do
       {:ok, game} =
-        p1
-        |> GameState.new()
+        @game_code
+        |> GameState.new(p1)
         |> GameState.join_game(p2)
 
       {:ok, game} = GameState.start(game)

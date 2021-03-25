@@ -1,0 +1,55 @@
+<%= if @player do %>
+  <div class="mb-4 text-lg leading-6 font-medium text-gray-900 text-center">
+    Player: <span class="font-semibold"><%= @player.name %></span>
+  </div>
+<% end %>
+
+<%= if @game.status == :not_started do %>
+  <div class="mt-8 text-4xl text-gray-700 text-center">
+    Waiting for other player to join!
+  </div>
+<% else %>
+  <div class="p-8 border border-gray-200 rounded-lg bg-gray-100">
+
+    <ul class="mb-4 grid grid-cols-1 gap-5 sm:gap-6 sm:grid-cols-2 lg:grid-cols-2">
+      <%= for player <- @game.players do %>
+        <li class="col-span-1 flex shadow-sm rounded-md">
+          <div class="flex-shrink-0 flex items-center justify-center w-16 bg-<%= player_tile_color(@game, player) %>-400 text-white text-sm font-medium rounded-l-md">
+            <%= player.letter %>
+          </div>
+          <div class="flex-1 flex items-center justify-between border-t border-r border-b border-gray-200 bg-white rounded-r-md truncate">
+            <div class="flex-1 px-4 py-2 text-sm truncate">
+              <p class="text-gray-900 font-medium hover:text-gray-600"><%= player.name %></p>
+            </div>
+          </div>
+        </li>
+      <% end %>
+    </ul>
+
+    <div class="text-8xl bg-gray-800 text-center ">
+      <div class="mt-4 grid gap-y-6 gap-x-4 grid-cols-3">
+        <div class="flex bg-gray-100"><%= square(@player, @game, :sq11, phx_click: "move", phx_value_square: :sq11) %></div>
+        <div class="flex bg-gray-100"><%= square(@player, @game, :sq12, phx_click: "move", phx_value_square: :sq12) %></div>
+        <div class="flex bg-gray-100"><%= square(@player, @game, :sq13, phx_click: "move", phx_value_square: :sq13) %></div>
+      </div>
+      <div class="mt-4 grid gap-y-6 gap-x-4 grid-cols-3">
+        <div class="flex bg-gray-100"><%= square(@player, @game, :sq21, phx_click: "move", phx_value_square: :sq21) %></div>
+        <div class="flex bg-gray-100"><%= square(@player, @game, :sq22, phx_click: "move", phx_value_square: :sq22) %></div>
+        <div class="flex bg-gray-100"><%= square(@player, @game, :sq23, phx_click: "move", phx_value_square: :sq23) %></div>
+      </div>
+      <div class="my-4 grid gap-y-6 gap-x-4 grid-cols-3">
+        <div class="flex bg-gray-100"><%= square(@player, @game, :sq31, phx_click: "move", phx_value_square: :sq31) %></div>
+        <div class="flex bg-gray-100"><%= square(@player, @game, :sq32, phx_click: "move", phx_value_square: :sq32) %></div>
+        <div class="flex bg-gray-100"><%= square(@player, @game, :sq33, phx_click: "move", phx_value_square: :sq33) %></div>
+      </div>
+    </div>
+  </div>
+<% end %>
+
+<%= result(@game) %>
+
+<%= if @game.status == :done do %>
+  <div class="text-center">
+    <button phx-click="restart" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Restart Game</button>
+  </div>
+<% end %>

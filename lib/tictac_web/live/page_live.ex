@@ -1,39 +1,49 @@
 defmodule TictacWeb.PageLive do
   use TictacWeb, :live_view
+  import Phoenix.HTML.Form
+  alias Tictac.Player
+  alias Tictac.GameServer
 
   @impl true
   def mount(_params, _session, socket) do
-    {:ok, assign(socket, query: "", results: %{})}
+    changeset = Player.insert_changeset(%{})
+
+    {:ok,
+     socket
+     |> assign(:changeset, changeset)}
   end
 
   @impl true
-  def handle_event("suggest", %{"q" => query}, socket) do
-    {:noreply, assign(socket, results: search(query), query: query)}
+  def handle_event("validate", %{"player" => params}, socket) do
+    changeset = Player.insert_changeset(params)
+    {:noreply, assign(socket, :changeset, changeset)}
   end
 
   @impl true
-  def handle_event("search", %{"q" => query}, socket) do
-    case search(query) do
-      %{^query => vsn} ->
-        {:noreply, redirect(socket, external: "https://hexdocs.pm/#{query}/#{vsn}")}
+  def handle_event("save", %{"player" => params}, socket) do
+    # TODO: You can generate unique game codes to allow for multiple simultaneous games
+    game_code = "ABCD"
 
-      _ ->
-        {:noreply,
-         socket
-         |> put_flash(:error, "No dependencies found matching \"#{query}\"")
-         |> assign(results: %{}, query: query)}
+    params
+    |> Player.insert_changeset()
+    |> Player.create()
+    |> case do
+      {:ok, %Player{} = player} ->
+        case GameServer.start_or_join(game_code, player) do
+          {:ok, _} ->
+            socket =
+              push_redirect(socket,
+                to: Routes.play_path(socket, :index, game: game_code, player: player.id)
+              )
+
+            {:noreply, socket}
+
+          {:error, reason} ->
+            {:noreply, put_flash(socket, :error, reason)}
+        end
+
+      {:error, changeset} ->
+        {:noreply, assign(socket, :changeset, changeset)}
     end
-  end
-
-  defp search(query) do
-    if not TictacWeb.Endpoint.config(:code_reloader) do
-      raise "action disabled when not in development"
-    end
-
-    for {app, desc, vsn} <- Application.started_applications(),
-        app = to_string(app),
-        String.starts_with?(app, query) and not List.starts_with?(desc, ~c"ERTS"),
-        into: %{},
-        do: {app, vsn}
   end
 end
