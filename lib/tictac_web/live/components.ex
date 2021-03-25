@@ -37,11 +37,12 @@ defmodule TictacWeb.LiveView.Components do
   def square(player, game, square_name, opts \\ [])
 
   def square(%Player{} = player, %GameState{status: :done} = game, square_name, opts) do
-    # TODO: If game state is :done, color the winning colors according to the player. If this player won, color winning squares green. If opponent won, color them red.
+    # If game state is :done, color the winning colors according to the player.
+    # If this player won, color winning squares green. If opponent won, color
+    # them red.
 
     # Get the local player's opponent for coloring
     opponent = GameState.opponent(game, player)
-    IO.inspect(opponent, label: "OPPONENT")
 
     winning_squares =
       case GameState.check_for_player_win(game, player) do
@@ -54,16 +55,6 @@ defmodule TictacWeb.LiveView.Components do
         :not_found -> []
         [_, _, _] = losing_spaces -> losing_spaces
       end
-
-    IO.inspect(winning_squares, label: "WINNING BY")
-    IO.inspect(losing_squares, label: "LOSING BY")
-
-    # TODO: If game state is playing, color is black (or dark gray)
-    # color =
-    #   case game do
-    #     %Game{status: :done} ->
-    #     %Game{} -> "black"
-    #   end
 
     color =
       cond do
@@ -81,16 +72,8 @@ defmodule TictacWeb.LiveView.Components do
     end
   end
 
-  def square(%Player{} = player, %GameState{} = game, square_name, opts) do
-    # TODO: If game state is :done, color the winning colors according to the player. If this player won, color winning squares green. If opponent won, color them red.
-
-    # TODO: If game state is playing, color is black (or dark gray)
-    # color =
-    #   case game do
-    #     %Game{status: :done} ->
-    #     %Game{} -> "black"
-    #   end
-
+  def square(%Player{} = _player, %GameState{status: :playing} = game, square_name, opts) do
+    # If game state is playing, no special colors applied
     case GameState.find_square(game, square_name) do
       {:ok, %Square{} = square} ->
         render_square(square.letter, "bg-white", opts)
