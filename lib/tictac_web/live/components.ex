@@ -7,29 +7,33 @@ defmodule TictacWeb.LiveView.Components do
   alias Tictac.Player
   alias Tictac.Square
 
-  def player_tile_color(%GameState{status: :done} = game, player) do
+  def player_tile_color(%GameState{status: :done} = game, player, _local_player) do
     case GameState.result(game) |> IO.inspect(label: "RESULT") do
       :draw ->
-        "gray"
+        "bg-gray-400"
 
       # If the winner is this player
       ^player ->
-        "green"
+        "bg-green-400"
 
       # If the losing player
       %Player{} ->
-        "red"
+        "bg-red-400"
 
       _else ->
-        "gray"
+        "bg-gray-400"
     end
   end
 
-  def player_tile_color(%GameState{status: :playing} = game, player) do
+  def player_tile_color(%GameState{status: :playing} = game, player, local_player) do
     if GameState.player_turn?(game, player) do
-      "green"
+      if player == local_player do
+        "bg-green-400"
+      else
+        "bg-gray-600"
+      end
     else
-      "gray"
+      "bg-gray-400"
     end
   end
 
