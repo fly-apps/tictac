@@ -15,6 +15,10 @@ config :tictac, TictacWeb.Endpoint,
   pubsub_server: Tictac.PubSub,
   live_view: [signing_salt: "wxN4jnnC"]
 
+# Track which mix environment this is for since Mix isn't available in
+# production releases.
+config :tictac, :env, Mix.env()
+
 # Configures Elixir's Logger
 config :logger, :console,
   format: "$time $metadata[$level] $message\n",

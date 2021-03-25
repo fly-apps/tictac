@@ -83,6 +83,8 @@ defmodule TictacWeb do
 
       # Import LiveView helpers (live_render, live_component, live_patch, etc)
       import Phoenix.LiveView.Helpers
+      # Import helpers for game components
+      import TictacWeb.LiveView.Components
 
       # Import basic rendering functionality (render, render_layout, etc)
       import Phoenix.View
