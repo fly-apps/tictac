@@ -10,7 +10,6 @@ defmodule Tictac.GameServer do
   alias Tictac.GameState
   alias Phoenix.PubSub
 
-
   # Client
 
   def child_spec(opts) do
@@ -45,7 +44,8 @@ defmodule Tictac.GameServer do
   @doc """
   Start a new game or join an existing game.
   """
-  @spec start_or_join(GameState.game_code(), Player.t()) :: {:ok, :started | :joined} | {:error, String.t()}
+  @spec start_or_join(GameState.game_code(), Player.t()) ::
+          {:ok, :started | :joined} | {:error, String.t()}
   def start_or_join(game_code, %Player{} = player) do
     case Horde.DynamicSupervisor.start_child(
            Tictac.DistributedSupervisor,
@@ -76,7 +76,8 @@ defmodule Tictac.GameServer do
   @doc """
   Perform a move for the player
   """
-  @spec move(GameState.game_code(), player_id :: String.t(), square :: atom()) :: :ok | {:error, String.t()}
+  @spec move(GameState.game_code(), player_id :: String.t(), square :: atom()) ::
+          :ok | {:error, String.t()}
   def move(game_code, player_id, square) do
     GenServer.call(via_tuple(game_code), {:move, player_id, square})
   end
@@ -84,7 +85,8 @@ defmodule Tictac.GameServer do
   @doc """
   Request and return the current game state.
   """
-  @spec get_current_game_state(GameState.game_code()) :: {:ok, GameState.t()} | {:error, String.t()}
+  @spec get_current_game_state(GameState.game_code()) ::
+          GameState.t() | {:error, String.t()}
   def get_current_game_state(game_code) do
     GenServer.call(via_tuple(game_code), :current_state)
   end
@@ -127,8 +129,8 @@ defmodule Tictac.GameServer do
   def handle_call({:move, player_id, square}, _from, %GameState{} = state) do
     with {:ok, player} <- GameState.find_player(state, player_id),
          {:ok, new_state} <- GameState.move(state, player, square) do
-          broadcast_game_state(new_state)
-          {:reply, :ok, new_state}
+      broadcast_game_state(new_state)
+      {:reply, :ok, new_state}
     else
       {:error, reason} = error ->
         Logger.error("Player move failed. Error: #{inspect(reason)}")
@@ -144,7 +146,7 @@ defmodule Tictac.GameServer do
   end
 
   def broadcast_game_state(%GameState{} = state) do
-    PubSub.broadcast Tictac.PubSub, "game:#{state.code}", {:game_state, state}
+    PubSub.broadcast(Tictac.PubSub, "game:#{state.code}", {:game_state, state})
   end
 
   @doc """
@@ -152,4 +154,16 @@ defmodule Tictac.GameServer do
   GameServer.
   """
   def via_tuple(game_code), do: {:via, Horde.Registry, {Tictac.GameRegistry, game_code}}
+
+  @doc """
+  Lookup the GameServer and report if it is found. Returns a boolean.
+  """
+  @spec server_found?(GameState.game_code()) :: boolean()
+  def server_found?(game_code) do
+    # Look up the game in the registry. Return if a match is found.
+    case Horde.Registry.lookup(Tictac.GameRegistry, game_code) do
+      [] -> false
+      [{pid, _} | _] when is_pid(pid) -> true
+    end
+  end
 end
