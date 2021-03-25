@@ -9,7 +9,8 @@ defmodule Tictac.GameState do
   # The board's squares are addressible using an atom like this: `:sq11` for
   # "Square: Row 1, Column 1". Ths goes through `:sq33` for "Square: Row 3,
   # Column 3".
-  defstruct players: [],
+  defstruct code: nil,
+            players: [],
             player_turn: nil,
             status: :not_started,
             board: [
@@ -27,7 +28,10 @@ defmodule Tictac.GameState do
               Square.build(:sq33)
             ]
 
+  @type game_code :: String.t()
+
   @type t :: %GameState{
+          code: nil | String.t(),
           status: :not_started | :playing | :done,
           players: [Player.t()],
           player_turn: nil | integer(),
@@ -37,9 +41,9 @@ defmodule Tictac.GameState do
   @doc """
   Return an initialized GameState struct. Requires one player to start.
   """
-  @spec new(Player.t()) :: t()
-  def new(%Player{} = player) do
-    %GameState{players: [player]}
+  @spec new(game_code(), Player.t()) :: t()
+  def new(game_code, %Player{} = player) do
+    %GameState{code: game_code, players: [%Player{player | letter: "O"}]}
   end
 
   @doc """
@@ -66,8 +70,40 @@ defmodule Tictac.GameState do
   end
 
   @doc """
+  Return the player from the game state found by the ID.
+  """
+  @spec get_player(t(), player_id :: String.t()) :: nil | Player.t()
+  def get_player(%GameState{players: players} = _state, player_id) do
+    Enum.find(players, &(&1.id == player_id))
+  end
+
+  @doc """
+  Return the player from the game state found by the ID in an `:ok`/`:error` tuple.
+  """
+  @spec find_player(t(), player_id :: String.t()) :: {:ok, Player.t()} | {:error, String.t()}
+  def find_player(%GameState{} = state, player_id) do
+    case get_player(state, player_id) do
+      nil ->
+        {:error, "Player not found"}
+
+      %Player{} = player ->
+        {:ok, player}
+    end
+  end
+
+  @doc """
+  Return the opponent player from the perspective of the given player.
+  """
+  @spec opponent(t(), Player.t()) :: nil | Player.t()
+  def opponent(%GameState{} = state, %Player{} = player) do
+    # Find the first player that doesn't have this ID
+    Enum.find(state.players, &(&1.id != player.id))
+  end
+
+  @doc """
   Start the game.
   """
+  @spec start(t()) :: {:ok, t()} | {:error, String.t()}
   def start(%GameState{status: :playing}), do: {:error, "Game in play"}
   def start(%GameState{status: :done}), do: {:error, "Game is done"}
 
@@ -91,16 +127,16 @@ defmodule Tictac.GameState do
 
   Tests for all the different ways the player could win.
   """
-  @spec check_for_player_win(t(), Player.t()) :: :not_found | {atom(), atom(), atom()}
+  @spec check_for_player_win(t(), Player.t()) :: :not_found | [atom()]
   def check_for_player_win(%GameState{board: board}, %Player{letter: letter}) do
     case board do
       #
       # Check for all the straight across wins
       [%Square{letter: ^letter}, %Square{letter: ^letter}, %Square{letter: ^letter} | _] ->
-        {:sq11, :sq12, :sq13}
+        [:sq11, :sq12, :sq13]
 
       [_, _, _, %Square{letter: ^letter}, %Square{letter: ^letter}, %Square{letter: ^letter} | _] ->
-        {:sq21, :sq22, :sq23}
+        [:sq21, :sq22, :sq23]
 
       [
         _,
@@ -113,7 +149,7 @@ defmodule Tictac.GameState do
         %Square{letter: ^letter},
         %Square{letter: ^letter}
       ] ->
-        {:sq31, :sq32, :sq33}
+        [:sq31, :sq32, :sq33]
 
       #
       # Check for all the vertical wins
@@ -128,7 +164,7 @@ defmodule Tictac.GameState do
         _,
         _ | _
       ] ->
-        {:sq11, :sq21, :sq31}
+        [:sq11, :sq21, :sq31]
 
       [
         _,
@@ -141,7 +177,7 @@ defmodule Tictac.GameState do
         %Square{letter: ^letter},
         _ | _
       ] ->
-        {:sq12, :sq22, :sq32}
+        [:sq12, :sq22, :sq32]
 
       [
         _,
@@ -154,7 +190,7 @@ defmodule Tictac.GameState do
         _,
         %Square{letter: ^letter} | _
       ] ->
-        {:sq13, :sq23, :sq33}
+        [:sq13, :sq23, :sq33]
 
       #
       # Check for the diagonal wins
@@ -169,7 +205,7 @@ defmodule Tictac.GameState do
         _,
         %Square{letter: ^letter} | _
       ] ->
-        {:sq11, :sq22, :sq33}
+        [:sq11, :sq22, :sq33]
 
       [
         _,
@@ -182,7 +218,7 @@ defmodule Tictac.GameState do
         _,
         _ | _
       ] ->
-        {:sq13, :sq22, :sq31}
+        [:sq13, :sq22, :sq31]
 
       _ ->
         :not_found
@@ -213,13 +249,13 @@ defmodule Tictac.GameState do
     player_1_won =
       case check_for_player_win(state, p1) do
         :not_found -> false
-        {_, _, _} -> true
+        [_, _, _] -> true
       end
 
     player_2_won =
       case check_for_player_win(state, p2) do
         :not_found -> false
-        {_, _, _} -> true
+        [_, _, _] -> true
       end
 
     cond do
@@ -253,7 +289,7 @@ defmodule Tictac.GameState do
     move(state, player, square)
   end
 
-  def move(%GameState{} = state, %Player{} = player, square) do
+  def move(%GameState{status: :playing} = state, %Player{} = player, square) do
     # - verify player's turn
     # - new board with the player's letter in the square
     # - check for a win/draw
@@ -265,6 +301,22 @@ defmodule Tictac.GameState do
     |> player_claim_square(player, square)
     |> check_for_done()
     |> next_player_turn()
+  end
+
+  def move(%GameState{status: :not_started} = _state, %Player{} = _player, _square) do
+    {:error, "Game hasn't started yet!"}
+  end
+
+  def move(%GameState{status: :done} = _state, %Player{} = _player, _square) do
+    {:error, "Game is over!"}
+  end
+
+  @doc """
+  Restart the game resetting the state back.
+  """
+  def restart(%GameState{players: [p1 | _]} = state) do
+    blank_state = %GameState{}
+    %GameState{state | board: blank_state.board, status: :playing, player_turn: p1.letter}
   end
 
   defp verify_player_turn(%GameState{} = state, %Player{} = player) do
