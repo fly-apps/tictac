@@ -43,7 +43,11 @@ defmodule Tictac.MixProject do
       {:telemetry_poller, "~> 0.4"},
       {:gettext, "~> 0.11"},
       {:jason, "~> 1.0"},
-      {:plug_cowboy, "~> 2.0"}
+      {:plug_cowboy, "~> 2.0"},
+      {:ecto, "~> 3.5.8"},
+      {:phoenix_ecto, "~> 4.2.1"},
+      {:horde, "~> 0.8.3"},
+      {:libcluster, "~> 3.2.2"}
     ]
   end
 
