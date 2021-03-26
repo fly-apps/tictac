@@ -1,15 +1,21 @@
 <%= if @server_found do %>
-  <%= if @player do %>
-    <div class="mb-4 text-lg leading-6 font-medium text-gray-900 text-center">
-      Player: <span class="font-semibold"><%= @player.name %></span>
-    </div>
-  <% end %>
-
   <%= if @game.status == :not_started do %>
     <div class="mt-8 text-4xl text-gray-700 text-center">
       Waiting for other player to join!
     </div>
+    <div class="mt-8 text-8xl text-indigo-700 text-center font-semibold">
+      <%= @game.code %>
+    </div>
+    <p class="mt-2 text-center font-medium text-gray-500">
+      Tell a friend to use this game code to join you!
+    </p>
   <% else %>
+    <%= if @player do %>
+      <div class="mb-4 text-lg leading-6 font-medium text-gray-900 text-center">
+        Player: <span class="font-semibold"><%= @player.name %></span>
+      </div>
+    <% end %>
+
     <div class="p-8 border border-gray-200 rounded-lg bg-gray-100">
 
       <ul class="mb-4 grid grid-cols-1 gap-5 sm:gap-6 sm:grid-cols-2 lg:grid-cols-2">

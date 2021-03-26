@@ -15,21 +15,51 @@
           </p>
         </div>
 
-        <div class="mt-6 grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
-          <div class="sm:col-span-3">
+        <div class="mt-6 grid grid-cols-2 gap-y-6 gap-x-4">
+          <div>
             <%= label(f, :name, class: "block text-sm font-medium text-gray-700") %>
             <div class="mt-1">
               <%= text_input(f, :name, class: "shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md") %>
             </div>
             <%= error_tag(f, :name) %>
           </div>
-        </div>
-      </div>
-    </div>
 
-    <div class="pt-5">
-      <div class="flex justify-end">
-        <%= submit("Start or Join Game", class: "ml-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500") %>
+          <div>
+            <%= label(f, :game_code, class: "block text-sm font-medium text-gray-700") %>
+            <div class="mt-1">
+              <%= text_input(f, :game_code, class: "shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md") %>
+            </div>
+            <p class="mt-2 text-sm text-gray-500" id="game_code-description">Leave it blank to start a new game</p>
+            <%= error_tag(f, :game_code) %>
+          </div>
+        </div>
+
+        <div class="mt-6 text-right">
+          <%= if new_game?(@changeset) do %>
+            <div class="pt-5">
+              <div class="flex justify-end">
+                <%= submit(class: "inline-flex items-center px-6 py-3 border border-transparent shadow-sm text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500") do %>
+                  <svg class="-ml-1 mr-3 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clip-rule="evenodd" />
+                  </svg>
+                  New Game
+                <% end %>
+              </div>
+            </div>
+          <% else %>
+            <div class="pt-5">
+              <div class="flex justify-end">
+                <%= submit(class: "inline-flex items-center px-6 py-3 border border-transparent shadow-sm text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500") do %>
+                  <svg class="-ml-1 mr-3 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                    <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
+                  </svg>
+                  Join a Game
+                <% end %>
+              </div>
+            </div>
+          <% end %>
+        </div>
+
       </div>
     </div>
   </form>

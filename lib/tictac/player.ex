@@ -42,10 +42,12 @@ defmodule Tictac.Player do
   end
 
   @doc """
-  Create the Player struct instance from the changeset if valid.
+  Create a Player struct instance from the attributes.
   """
-  @spec create(Ecto.Changeset.t()) :: {:ok, t()} | {:error, Ecto.Changeset.t()}
-  def create(changeset) do
-    apply_action(changeset, :insert)
+  @spec create(params :: map()) :: {:ok, t()} | {:error, Ecto.Changeset.t()}
+  def create(params) do
+    params
+    |> insert_changeset()
+    |> apply_action(:insert)
   end
 end

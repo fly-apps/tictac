@@ -42,6 +42,34 @@ defmodule Tictac.GameServer do
   end
 
   @doc """
+  Generate a unique game code for starting a new game server.
+  """
+  @spec generate_game_code() :: {:ok, GameState.game_code()} | {:error, String.t()}
+  def generate_game_code() do
+    # Generate 3 server codes to try. Take the first that is unused.
+    # If no unused ones found, add an error
+    codes = Enum.map(1..3, fn _ -> do_generate_code() end)
+
+    case Enum.find(codes, &(!GameServer.server_found?(&1))) do
+      nil ->
+        # no unused game code found. Report server busy, try again later.
+        {:error, "Didn't find unused code, try again later"}
+
+      code ->
+        {:ok, code}
+    end
+  end
+
+  defp do_generate_code() do
+    # Generate a single 4 character random code
+    range = ?A..?Z
+
+    1..4
+    |> Enum.map(fn _ -> [Enum.random(range)] |> List.to_string() end)
+    |> Enum.join("")
+  end
+
+  @doc """
   Start a new game or join an existing game.
   """
   @spec start_or_join(GameState.game_code(), Player.t()) ::

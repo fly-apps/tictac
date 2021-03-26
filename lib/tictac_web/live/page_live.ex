@@ -1,49 +1,49 @@
 defmodule TictacWeb.PageLive do
   use TictacWeb, :live_view
   import Phoenix.HTML.Form
+  alias TictacWeb.GameStarter
   alias Tictac.Player
   alias Tictac.GameServer
 
   @impl true
   def mount(_params, _session, socket) do
-    changeset = Player.insert_changeset(%{})
-
     {:ok,
      socket
-     |> assign(:changeset, changeset)}
+     |> assign(:changeset, GameStarter.insert_changeset(%{}))}
   end
 
   @impl true
-  def handle_event("validate", %{"player" => params}, socket) do
-    changeset = Player.insert_changeset(params)
+  def handle_event("validate", %{"game_starter" => params}, socket) do
+    changeset =
+      params
+      |> GameStarter.insert_changeset()
+      |> Map.put(:action, :validate)
+
     {:noreply, assign(socket, :changeset, changeset)}
   end
 
   @impl true
-  def handle_event("save", %{"player" => params}, socket) do
-    # TODO: You can generate unique game codes to allow for multiple simultaneous games
-    game_code = "ABCD"
+  def handle_event("save", %{"game_starter" => params}, socket) do
+    with {:ok, starter} <- GameStarter.create(params),
+         {:ok, game_code} <- GameStarter.get_game_code(starter),
+         {:ok, player} <- Player.create(%{name: starter.name}),
+         {:ok, _} <- GameServer.start_or_join(game_code, player) do
+      socket =
+        push_redirect(socket,
+          to: Routes.play_path(socket, :index, game: game_code, player: player.id)
+        )
 
-    params
-    |> Player.insert_changeset()
-    |> Player.create()
-    |> case do
-      {:ok, %Player{} = player} ->
-        case GameServer.start_or_join(game_code, player) do
-          {:ok, _} ->
-            socket =
-              push_redirect(socket,
-                to: Routes.play_path(socket, :index, game: game_code, player: player.id)
-              )
+      {:noreply, socket}
+    else
+      {:error, reason} when is_binary(reason) ->
+        {:noreply, put_flash(socket, :error, reason)}
 
-            {:noreply, socket}
-
-          {:error, reason} ->
-            {:noreply, put_flash(socket, :error, reason)}
-        end
-
-      {:error, changeset} ->
+      {:error, %Ecto.Changeset{} = changeset} ->
         {:noreply, assign(socket, :changeset, changeset)}
     end
+  end
+
+  defp new_game?(changeset) do
+    Ecto.Changeset.get_field(changeset, :type) == :start
   end
 end
