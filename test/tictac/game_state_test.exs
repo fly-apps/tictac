@@ -413,6 +413,12 @@ defmodule Tictac.GameStateTest do
       # Player is auto-assigned letter
       assert p1.letter == "O"
     end
+
+    test "sets a timer to start inactivity check", %{players: [p1, _p2]} do
+      state = GameState.new("1234", p1)
+      assert state.timer_ref != nil
+      assert is_reference(state.timer_ref)
+    end
   end
 
   describe "join_game/2" do
@@ -444,6 +450,13 @@ defmodule Tictac.GameStateTest do
     test "errors joining a game that wasn't started by a player", %{players: [p1, _]} do
       state = %GameState{}
       assert {:error, "Can only join a created game"} == GameState.join_game(state, p1)
+    end
+
+    test "resets timer_ref", %{players: [p1, p2]} do
+      state = GameState.new(@game_code, p1)
+      assert {:ok, new_state} = GameState.join_game(state, p2)
+      assert is_reference(new_state.timer_ref)
+      assert new_state.timer_ref != state.timer_ref
     end
   end
 
@@ -490,6 +503,14 @@ defmodule Tictac.GameStateTest do
     test "can't start when done", %{players: players} do
       state = %GameState{status: :done, players: players}
       assert {:error, "Game is done"} == GameState.start(state)
+    end
+
+    test "resets the timer_ref", %{players: [p1, p2]} do
+      state = GameState.new(@game_code, p1)
+      {:ok, joined_state} = GameState.join_game(state, p2)
+      {:ok, started_state} = GameState.start(joined_state)
+      assert is_reference(started_state.timer_ref)
+      assert joined_state.timer_ref != started_state.timer_ref
     end
   end
 
@@ -628,6 +649,12 @@ defmodule Tictac.GameStateTest do
       {:ok, move_1} = GameState.move(game, p1, :sq11)
       assert {:error, "Square already taken"} == GameState.move(move_1, p2, :sq11)
     end
+
+    test "resets the timer_ref", %{game: game, players: [p1, _p2]} do
+      {:ok, move_state} = GameState.move(game, p1, :sq22)
+      assert is_reference(move_state.timer_ref)
+      assert game.timer_ref != move_state.timer_ref
+    end
   end
 
   describe "restart/1" do
@@ -655,6 +682,12 @@ defmodule Tictac.GameStateTest do
       assert updated.player_turn == p1.letter
       # the board is reset
       assert updated.board == %GameState{}.board
+    end
+
+    test "resets the timer_ref", %{game: game} do
+      restarted_state = GameState.restart(game)
+      assert is_reference(restarted_state.timer_ref)
+      assert game.timer_ref != restarted_state.timer_ref
     end
   end
 

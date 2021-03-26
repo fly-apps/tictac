@@ -13,6 +13,7 @@ defmodule Tictac.GameState do
             players: [],
             player_turn: nil,
             status: :not_started,
+            timer_ref: nil,
             board: [
               # Row 1
               Square.build(:sq11),
@@ -35,8 +36,12 @@ defmodule Tictac.GameState do
           status: :not_started | :playing | :done,
           players: [Player.t()],
           player_turn: nil | integer(),
+          timer_ref: nil | reference(),
           board: [Square.t()]
         }
+
+  # 2 Minutes of inactivity ends the game
+  @inactivity_timeout 1000 * 60 * 2
 
   @doc """
   Return an initialized GameState struct. Requires one player to start.
@@ -44,6 +49,7 @@ defmodule Tictac.GameState do
   @spec new(game_code(), Player.t()) :: t()
   def new(game_code, %Player{} = player) do
     %GameState{code: game_code, players: [%Player{player | letter: "O"}]}
+    |> reset_inactivity_timer()
   end
 
   @doc """
@@ -66,7 +72,7 @@ defmodule Tictac.GameState do
         %Player{player | letter: "O"}
       end
 
-    {:ok, %GameState{state | players: [p1, player]}}
+    {:ok, %GameState{state | players: [p1, player]} |> reset_inactivity_timer()}
   end
 
   @doc """
@@ -108,7 +114,7 @@ defmodule Tictac.GameState do
   def start(%GameState{status: :done}), do: {:error, "Game is done"}
 
   def start(%GameState{status: :not_started, players: [_p1, _p2]} = state) do
-    {:ok, %GameState{state | status: :playing, player_turn: "O"}}
+    {:ok, %GameState{state | status: :playing, player_turn: "O"} |> reset_inactivity_timer()}
   end
 
   def start(%GameState{players: _players}), do: {:error, "Missing players"}
@@ -301,6 +307,7 @@ defmodule Tictac.GameState do
     |> player_claim_square(player, square)
     |> check_for_done()
     |> next_player_turn()
+    |> reset_inactivity_timer()
   end
 
   def move(%GameState{status: :not_started} = _state, %Player{} = _player, _square) do
@@ -316,7 +323,9 @@ defmodule Tictac.GameState do
   """
   def restart(%GameState{players: [p1 | _]} = state) do
     blank_state = %GameState{}
+
     %GameState{state | board: blank_state.board, status: :playing, player_turn: p1.letter}
+    |> reset_inactivity_timer()
   end
 
   defp verify_player_turn(%GameState{} = state, %Player{} = player) do
@@ -375,5 +384,31 @@ defmodule Tictac.GameState do
 
   defp next_player_turn({:ok, %GameState{player_turn: turn} = state}) do
     {:ok, %GameState{state | player_turn: if(turn == "X", do: "O", else: "X")}}
+  end
+
+  defp reset_inactivity_timer({:error, _reason} = error), do: error
+
+  defp reset_inactivity_timer({:ok, %GameState{} = state}) do
+    {:ok, reset_inactivity_timer(state)}
+  end
+
+  defp reset_inactivity_timer(%GameState{} = state) do
+    state
+    |> cancel_timer()
+    |> set_timer()
+  end
+
+  defp cancel_timer(%GameState{timer_ref: ref} = state) when is_reference(ref) do
+    Process.cancel_timer(ref)
+    %GameState{state | timer_ref: nil}
+  end
+
+  defp cancel_timer(%GameState{} = state), do: state
+
+  defp set_timer(%GameState{} = state) do
+    %GameState{
+      state
+      | timer_ref: Process.send_after(self(), :end_for_inactivity, @inactivity_timeout)
+    }
   end
 end

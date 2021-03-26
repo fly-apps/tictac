@@ -127,7 +127,9 @@ defmodule Tictac.GameServer do
     GenServer.call(via_tuple(game_code), :restart)
   end
 
-  # Server (callbacks)
+  ###
+  ### Server (callbacks)
+  ###
 
   @impl true
   def init(%{player: player, code: code}) do
@@ -171,6 +173,13 @@ defmodule Tictac.GameServer do
     new_state = GameState.restart(state)
     broadcast_game_state(new_state)
     {:reply, :ok, new_state}
+  end
+
+  @impl true
+  def handle_info(:end_for_inactivity, %GameState{} = state) do
+    # Shutdown the game server when it's been inactive for too long.
+    Logger.info("Game #{inspect(state.code)} was ended for inactivity")
+    {:stop, :normal, state}
   end
 
   def broadcast_game_state(%GameState{} = state) do
