@@ -54,3 +54,8 @@
 p.alert:empty {
   display: none;
 }
+
+/* Add commas to multiple error messages on a field */
+.invalid-feedback:not(:first-of-type):before {
+  content: ", ";
+}
