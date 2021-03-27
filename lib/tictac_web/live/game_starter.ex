@@ -28,8 +28,17 @@ defmodule TictacWeb.GameStarter do
     |> validate_required([:name])
     |> validate_length(:name, max: 15)
     |> validate_length(:game_code, is: 4)
+    |> uppercase_game_code()
     |> validate_game_code()
     |> compute_type()
+  end
+
+  @doc false
+  def uppercase_game_code(changeset) do
+    case get_field(changeset, :game_code) do
+      nil -> changeset
+      value -> put_change(changeset, :game_code, String.upcase(value))
+    end
   end
 
   @doc false
