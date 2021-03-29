@@ -44,6 +44,7 @@ You created two clients that are connected to two separate nodes where the nodes
 
 ![Multi-node local machine](images/home-computer-multi-node.png)
 
+Where "ABCD" is a started game.
 
 ## Project Setup
 
