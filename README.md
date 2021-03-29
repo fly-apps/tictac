@@ -40,11 +40,9 @@ Now in one browser window, visit [`localhost:4000`](http://localhost:4000).
 
 From another browser window, visit [`localhost:4001`](http://localhost:4001)].
 
-You created two clients that are connected to two separate nodes where the nodes are clustered together. This is what it looks like.
+You created two clients that are connected to two separate nodes where the nodes are clustered together. This is what it looks like where "ABCD" is a started game.
 
 ![Multi-node local machine](images/home-computer-multi-node.png)
-
-Where "ABCD" is a started game.
 
 ## Project Setup
 
