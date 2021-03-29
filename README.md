@@ -1,22 +1,48 @@
 # Tictac
 
-To start your Phoenix server:
+This is a demonstration of building a clustered, distributed, multi-player, turn-based game server written in Elixir.
+
+As designed, it plays Tic-Tac-Toe, but could be extended to play almost any multi-player turn based game. 
+
+## Try it out locally
+
+To try the project out locally:
 
   * Install dependencies with `mix deps.get`
   * Install Node.js dependencies with `npm install` inside the `assets` directory
-  * Start Phoenix endpoint with `mix phx.server`
+  * Start Phoenix endpoint with `PORT=4000 mix phx.server`
 
 Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
 
-Ready to run in production? Please [check our deployment guides](https://hexdocs.pm/phoenix/deployment.html).
+Since it is multi-player, you can open a second browser window to the same address. [`localhost:4000`](http://localhost:4000)
 
-## Learn more
+This is what a game looks like:
 
-  * Official website: https://www.phoenixframework.org/
-  * Guides: https://hexdocs.pm/phoenix/overview.html
-  * Docs: https://hexdocs.pm/phoenix
-  * Forum: https://elixirforum.com/c/phoenix-forum
-  * Source: https://github.com/phoenixframework/phoenix
+![Local Game Example](images/Local_playing.gif)
+
+## Running it multi-node and clustered
+
+To run it clustered locally, do the following.
+
+In a terminal window, run the following command:
+
+```
+PORT=4000 iex --name a@127.0.0.1 --cookie asdf -S mix phx.server
+```
+
+In a separate terminal window, this command:
+
+```
+PORT=4001 iex --name b@127.0.0.1 --cookie asdf -S mix phx.server
+```
+
+Now in one browser window, visit [`localhost:4000`](http://localhost:4000).
+
+From another browser window, visit [`localhost:4001`](http://localhost:4001)].
+
+You created two clients that are connected to two separate nodes where the nodes are clustered together. This is what it looks like.
+
+![Multi-node local machine](images/home-computer-multi-node.png)
 
 
 ## Project Setup
