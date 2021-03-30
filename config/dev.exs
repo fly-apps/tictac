@@ -65,3 +65,12 @@ config :phoenix, :stacktrace_depth, 20
 
 # Initialize plugs at runtime for faster development compilation
 config :phoenix, :plug_init_mode, :runtime
+
+config :libcluster,
+  debug: true,
+  topologies: [
+    local: [
+      strategy: Cluster.Strategy.Epmd,
+      config: [hosts: [:"a@127.0.0.1", :"b@127.0.0.1"]]
+    ]
+  ]

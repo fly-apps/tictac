@@ -7,7 +7,7 @@ defmodule Tictac.Application do
   require Logger
 
   def start(_type, _args) do
-    env = Application.get_env(:tictac, :env)
+    topologies = Application.get_env(:libcluster, :topologies) || []
 
     children = [
       # Start the Telemetry supervisor
@@ -15,10 +15,16 @@ defmodule Tictac.Application do
       # Start the PubSub system
       {Phoenix.PubSub, name: Tictac.PubSub},
       # setup for clustering
-      {Cluster.Supervisor, [libcluster(env), [name: Tictac.ClusterSupervisor]]},
+      {Cluster.Supervisor, [topologies, [name: Tictac.ClusterSupervisor]]},
       # Start the registry for tracking running games
       {Horde.Registry, [name: Tictac.GameRegistry, keys: :unique, members: :auto]},
-      {Horde.DynamicSupervisor, [name: Tictac.DistributedSupervisor, strategy: :one_for_one, members: :auto]},
+      {Horde.DynamicSupervisor,
+       [
+         name: Tictac.DistributedSupervisor,
+         shutdown: 1000,
+         strategy: :one_for_one,
+         members: :auto
+       ]},
       # # Start the Endpoint (http/https)
       TictacWeb.Endpoint
     ]
@@ -34,39 +40,5 @@ defmodule Tictac.Application do
   def config_change(changed, _new, removed) do
     TictacWeb.Endpoint.config_change(changed, removed)
     :ok
-  end
-
-  defp libcluster(:prod) do
-    Logger.info("Using libcluster(:prod) mode. DNSPoll strategy")
-
-    app_name =
-      System.get_env("FLY_APP_NAME") ||
-        raise "FLY_APP_NAME not available"
-
-    [
-      topologies: [
-        fly6pn: [
-          strategy: Cluster.Strategy.DNSPoll,
-          config: [
-            polling_interval: 5_000,
-            query: "#{app_name}.internal",
-            node_basename: app_name
-          ]
-        ]
-      ]
-    ]
-  end
-
-  defp libcluster(:test), do: []
-
-  defp libcluster(other) do
-    Logger.info("Using libcluster(_) mode with #{inspect(other)}. Empd strategy")
-
-    [
-      topologies: [
-        strategy: Cluster.Strategy.Epmd,
-        config: [hosts: [:"a@127.0.0.1", :"b@127.0.0.1"]]
-      ]
-    ]
   end
 end

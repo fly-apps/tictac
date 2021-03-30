@@ -19,7 +19,6 @@ config :tictac, TictacWeb.Endpoint,
   ],
   secret_key_base: secret_key_base
 
-
 config :libcluster,
   debug: true,
   topologies: [
@@ -28,7 +27,10 @@ config :libcluster,
       config: [
         polling_interval: 5_000,
         query: "#{app_name}.internal",
-        node_basename: app_name]]]
+        node_basename: app_name
+      ]
+    ]
+  ]
 
 # Do not include metadata nor timestamps in development logs
 config :logger, :console, format: "[$level] $message\n"
