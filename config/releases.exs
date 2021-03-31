@@ -17,6 +17,7 @@ config :tictac, TictacWeb.Endpoint,
     port: String.to_integer(System.get_env("PORT") || "4000"),
     transport_options: [socket_opts: [:inet6]]
   ],
+  url: [host: "#{System.get_env("FLY_APP_NAME")}.fly.dev"],
   secret_key_base: secret_key_base
 
 config :libcluster,
