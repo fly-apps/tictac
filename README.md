@@ -54,9 +54,7 @@ Deploy this to your own Fly.io account and see it in action for yourself!
 fly launch --name my-special-custom-name
 ```
 
-- When asked "Would you like to copy its configuration to the new app?" Choose "No"
-- Select region: sea (Seattle, Washington (US))
-- Would you like to deploy now? "No"
+- Take all the defaults. As for the region, choose `sea` (Seattle, Washington (US))
 - Replace the generated `fly.yaml` file with the following config but keep the `app` name that you chose for your app.
 
 ```yaml
