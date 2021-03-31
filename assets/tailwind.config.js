@@ -3,10 +3,10 @@ const colors = require('tailwindcss/colors')
 
 module.exports = {
   purge: [
-    "../**/*.html.eex",
-    "../**/*.html.leex",
-    "../**/views/**/*.ex",
-    "../**/live/**/*.ex",
+    "../lib/**/*.html.eex",
+    "../lib/**/*.html.leex",
+    "../lib/**/views/**/*.ex",
+    "../lib/**/live/**/*.ex",
     "./js/**/*.js"
   ],
   darkMode: false, // or 'media' or 'class'

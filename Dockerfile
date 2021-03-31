@@ -1,3 +1,6 @@
+# Debugging Notes:
+#
+#   docker run -it --rm tictac /bin/ash
 FROM elixir:1.10-alpine AS build
 
 # install build dependencies
@@ -11,13 +14,14 @@ RUN mix local.hex --force && \
     mix local.rebar --force
 
 # set build ENV
+ENV MIX_ENV=prod
 ENV SECRET_KEY_BASE=nokey
 
 # install mix dependencies
 COPY mix.exs mix.lock ./
 COPY config config
 RUN mix deps.get --only prod
-RUN MIX_ENV=prod mix deps.compile
+RUN mix deps.compile
 
 # build assets
 COPY assets/package.json assets/package-lock.json ./assets/
@@ -25,14 +29,15 @@ RUN npm --prefix ./assets ci --progress=false --no-audit --loglevel=error
 
 COPY priv priv
 COPY assets assets
+# Need the code files for tailwind purge to work
+COPY lib lib
 RUN npm run --prefix ./assets deploy
-RUN MIX_ENV=prod mix phx.digest
+RUN mix phx.digest
 
 # compile and build release
-COPY lib lib
 # uncomment COPY if rel/ exists
 # COPY rel rel
-RUN MIX_ENV=prod mix release
+RUN mix release
 
 # prepare release image
 FROM alpine:3.9 AS app
