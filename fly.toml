@@ -1,6 +1,6 @@
 # fly.toml file generated for polished-feather-3231 on 2021-03-30T14:23:18-06:00
 
-app = "polished-feather-3231"
+app = "tictac"
 
 kill_signal = "SIGTERM"
 kill_timeout = 5
