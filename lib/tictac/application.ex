@@ -25,7 +25,7 @@ defmodule Tictac.Application do
          strategy: :one_for_one,
          members: :auto
        ]},
-      # # Start the Endpoint (http/https)
+      # Start the Endpoint (http/https)
       TictacWeb.Endpoint
     ]
 
