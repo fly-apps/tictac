@@ -152,7 +152,7 @@ The first log line shows the nodes are connected.
 
 You now have a clustered Elixir application where users connect to the nearest server for them. This can provide a better user experience!
 
-![Fly region cluster](images/fly-region-cluster.png)
+![Fly region cluster](images/fly-region-cluster-eu.png)
 
 ## What will you build?
 
