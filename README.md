@@ -154,6 +154,6 @@ You now have a clustered Elixir application where users connect to the nearest s
 
 ![Fly region cluster](images/fly-region-cluster.png)
 
-## Now what will you build?
+## What will you build?
 
-Tic-Tac-Toe is a simple game. This architecture could support any multi-player turn-based game you might think of. What cool game will you make?
+Tic-Tac-Toe is a simple game. This architecture could support any multi-player turn-based game you might think of. What cool game do you want to make?
