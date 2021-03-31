@@ -8,7 +8,7 @@ defmodule TictacWeb.LiveView.Components do
   alias Tictac.Square
 
   def player_tile_color(%GameState{status: :done} = game, player, _local_player) do
-    case GameState.result(game) |> IO.inspect(label: "RESULT") do
+    case GameState.result(game) do
       :draw ->
         "bg-gray-400"
 
