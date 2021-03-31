@@ -69,7 +69,7 @@ defmodule TictacWeb.PlayLive do
   end
 
   def handle_info(:load_game_state, socket) do
-    Logger.info("Game server #{inspect(socket.assigns.game_code)} not found")
+    Logger.debug("Game server #{inspect(socket.assigns.game_code)} not found")
     # Schedule to check again
     Process.send_after(self(), :load_game_state, 500)
     {:noreply, assign(socket, :server_found, GameServer.server_found?(socket.assigns.game_code))}
