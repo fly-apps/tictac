@@ -2,17 +2,19 @@
 
 This is a demonstration of building a clustered, distributed, multi-player, turn-based game server written in Elixir. As designed, it plays Tic-Tac-Toe, but was designed to be extended to play almost any multi-player turn based game.
 
+This uses Phoenix LiveView for the UI, `libcluster` for clustering the nodes, `horde` for providing a distributed process registry, and [fly.io](https://fly.io) for hosting and multi-region clustering support.
+
 ## Try it out locally
 
 To try the project out locally:
 
   * Install dependencies with `mix deps.get`
   * Install Node.js dependencies with `npm install` inside the `assets` directory
-  * Start Phoenix endpoint with `PORT=4000 mix phx.server`
+  * Start Phoenix endpoint with `mix phx.server`
 
 Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
 
-Since it is multi-player, you can open a second browser window to the same address. [`localhost:4000`](http://localhost:4000)
+Since ths is multi-player, open a second browser window to the same address. [`localhost:4000`](http://localhost:4000)
 
 This is what a game looks like:
 
@@ -55,7 +57,7 @@ fly launch --name my-special-custom-name
 - When asked "Would you like to copy its configuration to the new app?" Choose "No"
 - Select region: sea (Seattle, Washington (US))
 - Would you like to deploy now? "No"
-- Replace the generated `fly.yaml` file with the following config:
+- Replace the generated `fly.yaml` file with the following config but keep the `app` name that you chose for your app.
 
 ```yaml
 app = "<my-special-custom-name>"
