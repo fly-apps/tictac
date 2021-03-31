@@ -44,7 +44,7 @@ You created two clients that are connected to two separate Elixir nodes which ar
 
 ## Deploying it to Fly.io
 
-To deploy this to your own Fly.io account to see it in action for yourself, do this:
+Deploy this to your own Fly.io account and see it in action for yourself!
 
 - Setup your [Fly.io account](https://fly.io/docs/hands-on/start/)
 - Clone this repo
