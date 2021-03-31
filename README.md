@@ -148,7 +148,7 @@ fly logs
 2021-03-31T14:28:22.892Z c9b72c04 sea [info] [info] Access TictacWeb.Endpoint at https://tictac.fly.dev
 ```
 
-Notice the first line shows the nodes are connected.
+The first log line shows the nodes are connected.
 
 You now have a clustered Elixir application where users connect to the nearest server for them. This provides a better experience.
 
