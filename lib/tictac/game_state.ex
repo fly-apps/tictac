@@ -301,6 +301,7 @@ defmodule Tictac.GameState do
     # - check for a win/draw
     # - if more moves are posible,
     # - set to the next player's turn
+    # - reset the inactivity timer
     state
     |> verify_player_turn(player)
     |> verify_square(square)
