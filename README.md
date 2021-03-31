@@ -2,7 +2,7 @@
 
 This is a demonstration of building a clustered, distributed, multi-player, turn-based game server written in Elixir. As designed, it plays Tic-Tac-Toe, but was designed to be extended to play almost any multi-player turn based game.
 
-This uses Phoenix LiveView for the UI, `libcluster` for clustering the nodes, `horde` for providing a distributed process registry, and [fly.io](https://fly.io) for hosting and multi-region clustering support.
+This uses Phoenix LiveView for the UI, TailwindCSS for styles, `libcluster` for clustering the nodes, `horde` for providing a distributed process registry, and [fly.io](https://fly.io) for hosting and multi-region clustering support.
 
 ## Try it out locally
 
@@ -112,6 +112,8 @@ fly deploy
 fly open
 ```
 
+At this point you have a working system. This is where most systems stop!
+
 ## Take it Multi-Region!
 
 Ready to take it to multiple regions? We've got one in Seattle on the West Coast, let's add one on the East Coast to cover the whole US.
@@ -147,3 +149,11 @@ fly logs
 ```
 
 Notice the first line shows the nodes are connected.
+
+You now have a clustered Elixir application where users connect to the nearest server for them. This provides a better experience.
+
+![Fly region cluster](images/fly-region-cluster.png)
+
+## Now what will you build?
+
+Tic-Tac-Toe is a simple game. This architecture could support any multi-player turn-based game you might think of. What cool game will you make?
