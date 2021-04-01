@@ -30,7 +30,7 @@ defmodule TictacWeb.LiveView.Components do
       if player == local_player do
         "bg-green-400"
       else
-        "bg-gray-600"
+        "bg-gray-400"
       end
     else
       "bg-gray-400"
