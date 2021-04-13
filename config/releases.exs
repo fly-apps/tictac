@@ -24,7 +24,7 @@ config :libcluster,
   debug: true,
   topologies: [
     fly6pn: [
-      strategy: Elixir.Cluster.Strategy.DNSPoll,
+      strategy: Cluster.Strategy.DNSPoll,
       config: [
         polling_interval: 5_000,
         query: "#{app_name}.internal",

@@ -33,18 +33,18 @@
         <% end %>
       </ul>
 
-      <div class="text-8xl bg-gray-800 text-center ">
-        <div class="mt-4 grid gap-y-6 gap-x-4 grid-cols-3">
+      <div class="text-4xl sm:text-8xl bg-gray-800 text-center ">
+        <div class="mt-2 sm:mt-4 grid gap-y-2 sm:gap-y-6 gap-x-2 sm:gap-x-4 grid-cols-3">
           <div class="flex bg-gray-100"><%= square(@player, @game, :sq11, phx_click: "move", phx_value_square: :sq11) %></div>
           <div class="flex bg-gray-100"><%= square(@player, @game, :sq12, phx_click: "move", phx_value_square: :sq12) %></div>
           <div class="flex bg-gray-100"><%= square(@player, @game, :sq13, phx_click: "move", phx_value_square: :sq13) %></div>
         </div>
-        <div class="mt-4 grid gap-y-6 gap-x-4 grid-cols-3">
+        <div class="mt-2 sm:mt-4 grid gap-y-2 sm:gap-y-6 gap-x-2 sm:gap-x-4 grid-cols-3">
           <div class="flex bg-gray-100"><%= square(@player, @game, :sq21, phx_click: "move", phx_value_square: :sq21) %></div>
           <div class="flex bg-gray-100"><%= square(@player, @game, :sq22, phx_click: "move", phx_value_square: :sq22) %></div>
           <div class="flex bg-gray-100"><%= square(@player, @game, :sq23, phx_click: "move", phx_value_square: :sq23) %></div>
         </div>
-        <div class="my-4 grid gap-y-6 gap-x-4 grid-cols-3">
+        <div class="my-2 sm:my-4 grid gap-y-2 sm:gap-y-6 gap-x-2 sm:gap-x-4 grid-cols-3">
           <div class="flex bg-gray-100"><%= square(@player, @game, :sq31, phx_click: "move", phx_value_square: :sq31) %></div>
           <div class="flex bg-gray-100"><%= square(@player, @game, :sq32, phx_click: "move", phx_value_square: :sq32) %></div>
           <div class="flex bg-gray-100"><%= square(@player, @game, :sq33, phx_click: "move", phx_value_square: :sq33) %></div>

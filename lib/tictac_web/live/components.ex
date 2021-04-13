@@ -90,7 +90,7 @@ defmodule TictacWeb.LiveView.Components do
   def square(_player, _game, _square_name, _opts), do: nil
 
   def render_square(letter, color, opts) do
-    classes = "m-4 w-full h-22 rounded-lg shadow #{color} cursor-pointer"
+    classes = "m-2 sm:m-4 w-full h-22 rounded-lg shadow #{color} cursor-pointer"
 
     Phoenix.HTML.Tag.content_tag :span, Keyword.merge(opts, class: classes) do
       case letter do
@@ -114,7 +114,7 @@ defmodule TictacWeb.LiveView.Components do
       end
 
     ~E"""
-    <div class="m-8 text-6xl text-center text-green-700">
+    <div class="m-4 sm:m-8 text-3xl sm:text-6xl text-center text-green-700">
       <%= text %>
     </div>
     """
