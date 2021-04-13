@@ -76,16 +76,16 @@ private_network = true
 
   [[services.ports]]
     handlers = ["http"]
-    port = "80"
+    port = 80
 
   [[services.ports]]
     handlers = ["tls", "http"]
-    port = "443"
+    port = 443
 
   [[services.tcp_checks]]
     grace_period = "30s" # allow some time for startup
     interval = "15s"
-    port = "8080"
+    port = 8080
     restart_limit = 6
     timeout = "2s"
 ```
