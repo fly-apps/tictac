@@ -9,6 +9,6 @@ test/
 priv/static/
 
 .vscode/
-.elixirls/
+.elixir_ls/
 erl_crash.dump
 
