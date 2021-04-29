@@ -55,16 +55,13 @@ fly launch --name my-special-custom-name
 ```
 
 - Take all the defaults. As for the region, choose `sea` (Seattle, Washington (US))
-- Replace the generated `fly.yaml` file with the following config but keep the `app` name that you chose for your app.
+- Replace the generated `fly.toml` file with the following config but keep the `app` name that you chose for your app.
 
 ```yaml
 app = "<my-special-custom-name>"
 
 kill_signal = "SIGTERM"
 kill_timeout = 5
-
-[experimental]
-private_network = true
 
 [[services]]
   internal_port = 4000
@@ -85,7 +82,6 @@ private_network = true
   [[services.tcp_checks]]
     grace_period = "30s" # allow some time for startup
     interval = "15s"
-    port = 8080
     restart_limit = 6
     timeout = "2s"
 ```

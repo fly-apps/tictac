@@ -5,9 +5,6 @@ app = "tictactoe"
 kill_signal = "SIGTERM"
 kill_timeout = 5
 
-[experimental]
-private_network = true
-
 [[services]]
   internal_port = 4000
   protocol = "tcp"
@@ -27,6 +24,5 @@ private_network = true
   [[services.tcp_checks]]
     grace_period = "30s" # allow some time for startup
     interval = "15s"
-    port = 8080
     restart_limit = 6
     timeout = "2s"
