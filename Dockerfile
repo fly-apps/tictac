@@ -29,7 +29,9 @@ RUN npm --prefix ./assets ci --progress=false --no-audit --loglevel=error
 
 COPY priv priv
 COPY assets assets
-# Need the code files for tailwind purge to work
+
+# NOTE: We are using TailwindCSS, it uses a special "purge" step and that
+# requires the code in `lib` to see what is being used.
 COPY lib lib
 RUN npm run --prefix ./assets deploy
 RUN mix phx.digest
@@ -51,11 +53,8 @@ USER nobody:nobody
 
 COPY --from=build --chown=nobody:nobody /app/_build/prod/rel/tictac ./
 
-ADD entrypoint.sh ./
-
 ENV HOME=/app
 ENV MIX_ENV=prod
 ENV SECRET_KEY_BASE=nokey
 ENV PORT=4000
-ENTRYPOINT ["/app/entrypoint.sh"]
 CMD ["bin/tictac", "start"]
