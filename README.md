@@ -4,6 +4,8 @@ This is a demonstration of building a clustered, distributed, multi-player, turn
 
 This uses Phoenix LiveView for the UI, TailwindCSS for styles, `libcluster` for clustering the nodes, `horde` for providing a distributed process registry, and [fly.io](https://fly.io) for hosting and multi-region clustering support.
 
+You can read the blog post about it here: [fly.io/blog/building-a-distributed-turn-based-game-system-in-elixir/](https://fly.io/blog/building-a-distributed-turn-based-game-system-in-elixir/)
+
 ## Try it out locally
 
 To try the project out locally:
