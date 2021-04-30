@@ -40,8 +40,8 @@ defmodule Tictac.GameState do
           board: [Square.t()]
         }
 
-  # 2 Minutes of inactivity ends the game
-  @inactivity_timeout 1000 * 60 * 2
+  # 30 Minutes of inactivity ends the game
+  @inactivity_timeout 1000 * 60 * 30
 
   @doc """
   Return an initialized GameState struct. Requires one player to start.
