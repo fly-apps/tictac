@@ -1,14 +1,3 @@
-_build/
 assets/node_modules
 deps/
-.git/
-.gitignore
-Dockerfile
-Makefile
-test/
-priv/static/
-
-.vscode/
-.elixir_ls/
-erl_crash.dump
 

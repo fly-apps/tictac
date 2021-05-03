@@ -1,7 +1,7 @@
 # Debugging Notes:
 #
 #   docker run -it --rm tictac /bin/ash
-FROM elixir:1.10-alpine AS build
+FROM hexpm/elixir:1.11.2-erlang-23.3.2-alpine-3.13.3 AS build
 
 # install build dependencies
 RUN apk add --no-cache build-base npm
@@ -20,10 +20,11 @@ ENV SECRET_KEY_BASE=nokey
 # install mix dependencies
 COPY mix.exs mix.lock ./
 COPY config config
-RUN mix deps.get --only prod
-RUN mix deps.compile
 
-# build assets
+RUN mix deps.get --only prod && \
+    mix deps.compile
+
+# install npm dependencies
 COPY assets/package.json assets/package-lock.json ./assets/
 RUN npm --prefix ./assets ci --progress=false --no-audit --loglevel=error
 
@@ -33,16 +34,16 @@ COPY assets assets
 # NOTE: We are using TailwindCSS, it uses a special "purge" step and that
 # requires the code in `lib` to see what is being used.
 COPY lib lib
+# build assets
 RUN npm run --prefix ./assets deploy
 RUN mix phx.digest
 
 # compile and build release
-# uncomment COPY if rel/ exists
-# COPY rel rel
+COPY rel rel
 RUN mix release
 
 # prepare release image
-FROM alpine:3.9 AS app
+FROM alpine:3.13.3 AS app
 RUN apk add --no-cache openssl ncurses-libs
 
 WORKDIR /app
@@ -57,4 +58,5 @@ ENV HOME=/app
 ENV MIX_ENV=prod
 ENV SECRET_KEY_BASE=nokey
 ENV PORT=4000
+
 CMD ["bin/tictac", "start"]
