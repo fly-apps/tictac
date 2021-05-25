@@ -155,3 +155,11 @@ You now have a clustered Elixir application where users connect to the nearest s
 ## What will you build?
 
 Tic-Tac-Toe is a simple game. This architecture could support any multi-player turn-based game you might think of. What cool game do you want to make?
+
+## Livebook notebooks!
+
+I used [Livebook](https://github.com/elixir-nx/livebook) notebooks to document business logic in a regular Phoenix Web application! I created two notebooks to document how the game state works and also how a game server runs that state.
+
+They are just plain markdown files as far as the project is concerned. Open then with Livebook and follow [this guide](https://fly.io/blog/documenting-business-logic-with-livebook/) to execute them in the context of the application.
+
+You can find them in the `notebook` folder.

@@ -1,0 +1,109 @@
+# TicTac GameState
+
+## Explanation
+
+The heart of the Tictac app is the `%Tictac.GameState{}` struct and module.
+It defines the data structure and the functions for manipulating the game state. 
+The struct is used by a GenServer to model and manage state changes to a running game.
+
+When a game is created, it is given a name or code to identify it. A game is created 
+by a player, so it starts with one initial player. Before the game can start, a 
+second player must join.
+
+This walks through a game setup, showing behavior with game moves, how the states 
+change, and finally when a game ends.
+
+## Setup
+
+Create the players and setup the GameState.
+
+Start by first creating two players that we'll use to create a game and have the 2nd 
+player join the game.
+
+```elixir
+{:ok, player_1} = Tictac.Player.create(%{name: "Tom"})
+{:ok, player_2} = Tictac.Player.create(%{name: "John"})
+nil
+```
+
+When a player is created, they don't yet have a "letter" assigned. That get's assigned once they've joined the game.
+
+```elixir
+alias Tictac.GameState
+game = GameState.new("ABCD", player_1)
+```
+
+Once a game is created, the status is `:not_started`. It's waiting for another player to join and officiall start the game.
+
+```elixir
+game.status
+```
+
+When the 2nd player joins, we still are in a `:not_started` state until the game is 
+explicitly started.
+
+```elixir
+{:ok, game} = GameState.join_game(game, player_2)
+```
+
+```elixir
+game.status
+```
+
+When the game starts, the `player_turn` is assigned. According to the official rules, "O" always starts first.
+
+We will now be in a `:playing` state.
+
+```elixir
+{:ok, game} = GameState.start(game)
+```
+
+```elixir
+game.status
+```
+
+## Making a Move
+
+We want to get a reference to the players attached to the game. These player structs have the "letters" assigned for each player. They may be playing as "X" or "O".
+
+```elixir
+[player_1, player_2] = game.players
+```
+
+The game is now in `:playing` mode. Players can make moves on their turns.
+
+Demonstrates how a game is played and some of the operations that are supported.
+
+As moves are made, you can see the `:board` squares get claimed.
+
+```elixir
+{:ok, game} = GameState.move(game, player_1, :sq11)
+```
+
+Let's make a bunch of moves together and see the result.
+
+```elixir
+{:ok, game} =
+  game
+  |> GameState.move(player_2, :sq22)
+  |> GameState.move(player_1, :sq33)
+  |> GameState.move(player_2, :sq31)
+  |> GameState.move(player_1, :sq13)
+  |> GameState.move(player_2, :sq12)
+  |> GameState.move(player_1, :sq23)
+```
+
+## Game Over
+
+After the turns are complete and a player has won, the status reflects that the game is over.
+We can test for who the winner is as well. Once the game is concluded, no more moves are allowed.
+
+```elixir
+game.status
+```
+
+Calling `GameState.result/1` returns the winning player, `:playing` if the game is still going, or `:draw` depending on the result.
+
+```elixir
+GameState.result(game)
+```

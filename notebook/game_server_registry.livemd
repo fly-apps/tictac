@@ -1,0 +1,126 @@
+# TicTac Game Server and Registry
+
+## Background
+
+The central part to playing Tictac is staring a GameServer and inteacting with it. 
+The game server holds the state of an individual game. Players send messages to the GameServer
+and it acts as the "source of truth" for the game state and the result of a player's moves.
+
+## Starting a Server
+
+The system uses a 4 letter game code to uniquely identify a temporary, running game server.
+A game code is easily generated. Using the game code, a server's PID can be found.
+
+```elixir
+alias Tictac.GameServer
+{:ok, game_code} = GameServer.generate_game_code()
+```
+
+In order to start a new game, a player struct is needed. This creates a new game 
+using the generated `game_code` and creates the initial player at the same time.
+
+```elixir
+alias Tictac.Player
+{:ok, player_1} = Player.create(%{name: "Tom"})
+{:ok, _status} = GameServer.start_or_join(game_code, player_1)
+```
+
+Internally, the `Horde.Registry` is used to provide a distributed registry of game's 
+linked to their `game_code` names. Normal Registry works great, but isn't distributed.
+The registry keys and PIDs are only available on the one machine in the cluster
+where the registry is running.
+
+The reason this doesn't use something like `:pg2` or `:pg` (aka Process Groups) is because those 
+don't enable tracking metadata with the process. They are also setup more for managing a 
+set of processes under a single name or grouping. So it doesn't make sense to use that 
+for tracking our games. Horde.Registry work well for this.
+
+Using the registry, we can lookup if a game with the given name is found.
+
+```elixir
+Horde.Registry.lookup(Tictac.GameRegistry, game_code)
+```
+
+A helpful API is setup that uses this registry check to see if a game_code is currently in use.
+
+```elixir
+GameServer.server_found?(game_code)
+```
+
+## Joining a Server
+
+Once a game is created, another player joins it to play. Using the same game_code, 
+a player is able "join" the already running server.
+
+```elixir
+{:ok, player_2} = Player.create(%{name: "Jill"})
+{:ok, _status} = GameServer.start_or_join(game_code, player_2)
+```
+
+Once 2 players are in the server, the game is started.
+
+## Playing a Game
+
+When changes to the game state are made, they are broadcast out on PubSub. This is how the LiveView
+is updated.
+
+If a player get's disconnected and reconnects, their LiveView can request the current game state.
+
+The LiveView tracks the player_id and the game_code they are connected to. Moves are made using the 
+that information. So let's get the player's IDs attached to the game.
+
+```elixir
+GameServer.get_current_game_state(game_code)
+```
+
+Players can make moves until the game ends. If a game is left abandoned, it shuts itself down after a 
+being left alone for a period of time.
+
+The player makes a move and selects the game board square they want to claim. The column names use 
+Row/Col numbering. So `sq11` is row 1 column 1 and `sq31` is row 3 column 1.
+
+| Col 1 | Col 2 | Col 3 |
+| ----- | :---: | ----: |
+| sq11  | sq12  | sq13  |
+| sq21  | sq22  | sq23  |
+| sq31  | sq32  | sq33  |
+
+```elixir
+GameServer.move(game_code, player_1.id, :sq11)
+```
+
+Remember, the game state is sent out after each move to both players via PubSub. 
+So the GenServer doesn't really return anything when the move is valid. If an 
+invalid move is tried then it returns an error message.
+
+Like if player 2 tries to go in the same spot as the square claimed by player_1, this is what happens.
+
+```elixir
+GameServer.move(game_code, player_2.id, :sq11)
+```
+
+```elixir
+GameServer.move(game_code, player_2.id, :sq12)
+```
+
+```elixir
+GameServer.move(game_code, player_1.id, :sq21)
+```
+
+```elixir
+GameServer.move(game_code, player_2.id, :sq22)
+```
+
+```elixir
+GameServer.move(game_code, player_1.id, :sq31)
+```
+
+At this point the game is over. Player 1 won. We can check the state.
+
+```elixir
+game_state = GameServer.get_current_game_state(game_code)
+```
+
+```elixir
+Tictac.GameState.result(game_state)
+```
