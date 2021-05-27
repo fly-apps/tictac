@@ -158,8 +158,8 @@ Tic-Tac-Toe is a simple game. This architecture could support any multi-player t
 
 ## Livebook notebooks!
 
-I used [Livebook](https://github.com/elixir-nx/livebook) notebooks to document business logic in a regular Phoenix Web application! I created two notebooks to document how the game state works and also how a game server runs that state.
+I used [Livebook](https://github.com/elixir-nx/livebook) notebooks to document the app logic in a regular Phoenix Web application! I created two notebooks to document how the game state works and also how a game server runs that state.
 
-They are just plain markdown files as far as the project is concerned. Open them with Livebook and follow [this guide](https://fly.io/blog/documenting-business-logic-with-livebook/) to execute them in the context of the application.
+They are just plain markdown files as far as the project is concerned. Open them with Livebook and follow [this guide](https://fly.io/blog/livebook-for-app-documentation/) to execute them in the context of the application.
 
-You can find them in the `notebook` folder.
+You will find them in the `notebook` folder.
