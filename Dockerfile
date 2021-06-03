@@ -9,7 +9,7 @@ RUN apk add --no-cache build-base npm
 # prepare build dir
 WORKDIR /app
 
-# prevent hex timeout
+# extend hex timeout
 ENV HEX_HTTP_TIMEOUT=20
 
 # install hex + rebar
