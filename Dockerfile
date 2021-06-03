@@ -47,7 +47,7 @@ RUN mix release
 
 # prepare release image
 FROM alpine:3.13.3 AS app
-RUN apk add --no-cache openssl ncurses-libs
+RUN apk add --no-cache libstdc++ openssl ncurses-libs
 
 WORKDIR /app
 
