@@ -10,7 +10,8 @@ defmodule Tictac.MixProject do
       compilers: [:phoenix, :gettext] ++ Mix.compilers(),
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
-      deps: deps()
+      deps: deps(),
+      releases: releases()
     ]
   end
 
@@ -60,6 +61,18 @@ defmodule Tictac.MixProject do
   defp aliases do
     [
       setup: ["deps.get", "cmd npm install --prefix assets"]
+    ]
+  end
+
+  defp releases do
+    [
+      tictac: [
+        include_executables_for: [:unix],
+        # NOTE: You can generate a unique cookie for your project using
+        # `Base.url_encode64(:crypto.strong_rand_bytes(40))` and use that for
+        # the $cookie value.
+        cookie: "gyhN1rZjMFc5kNYMnpcxdvmoanIUMyS9xs63JgEfNY78EYeBtxu4Bw=="
+      ]
     ]
   end
 end

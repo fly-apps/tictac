@@ -33,3 +33,6 @@ npm-debug.log
 # we ignore priv/static. You may want to comment
 # this depending on your deployment strategy.
 /priv/static/
+
+# Local dev ENV values set by `direnv`
+.envrc
